@@ -42,7 +42,7 @@
     </font>
    </property>
    <property name="text">
-    <string>잘못 선택 하셨으면 아래 번호를 터치!!!</string>
+    <string>잘못 선택 하셨으면 아래 키워드 터치!!!</string>
    </property>
   </widget>
  </widget>

@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
-from gtts import gTTS
 from playsound import playsound
 import pandas as pd
 import time
@@ -17,31 +16,54 @@ class check_response(QDialog):
         self.parent = parent
         self.clicked_time = QTimer()
         self.clicked_time.setInterval(10000)
+        self.replied_time = QTimer()
+        self.replied_time.setInterval(20000)
         self.audio_in = 'in.mp3'
 
         check_response_ui = 'check.ui'
         uic.loadUi(check_response_ui, self)
         self.setWindowTitle('알림')
-        self.btn_re.setText(f'{parent.re}번')
-        self.btn_re.setFont(QFont("궁서",50))
+
+        if self.parent.re == 1:
+            self.btn_re.setText(f'{parent.btn_1.text()}')
+            self.btn_re.setStyleSheet("color: white;"
+                                     "border-style: solid;"
+                                     "border-width: 2px;"
+                                     "background-color: #f7453b;"
+                                     "border-color: #f7453b;"
+                                     "border-radius: 3px")
+        elif self.parent.re == 2:
+            self.btn_re.setText(f'{parent.btn_2.text()}')
+            self.btn_re.setStyleSheet("color: white;"
+                                     "border-style: solid;"
+                                     "border-width: 2px;"
+                                     "background-color: #fcc82b;"
+                                     "border-color: #fcc82b;"
+                                     "border-radius: 3px")
+        else:
+            self.btn_re.setText(f'{parent.btn_3.text()}')
+            self.btn_re.setStyleSheet("color: white;"
+                                     "border-style: solid;"
+                                     "border-width: 2px;"
+                                     "background-color: #4a7ac2;"
+                                     "border-color: #4a7ac2;"
+                                     "border-radius: 3px")
+        self.btn_re.setFont(QFont("궁서",40))
         self.lbl_re.setStyleSheet("color: red;"
                                  "border-style: solid;"
                                  "border-width: 2px;"
                                  "background-color: #fcbdbd;"
                                  "border-color: #FA8072;"
                                  "border-radius: 3px")
-        self.btn_re.setStyleSheet("color: black;"
-                                  "border-style: solid;"
-                                  "border-width: 2px;"
-                                  "background-color: #c4c4c4;"
-                                  "border-color: black;"
-                                  "border-radius: 3px")
+
         self.show()
 
         self.clicked_time.timeout.connect(self.record_csv)
+        self.replied_time.timeout.connect(self.replied)
         self.btn_re.clicked.connect(self.btn)
 
         self.clicked_time.start()
+        self.replied_time.start()
 
     def btn(self):
         self.clicked_time.stop()
@@ -55,15 +77,14 @@ class check_response(QDialog):
         data = pd.DataFrame(raw_data, columns=self.parent.df.columns)
         self.parent.df = self.parent.df.append(data)
         self.parent.df.to_csv(f'{self.parent.name}.csv', index=False, encoding='utf-8-sig')
-        self.close()
-        self.replied()
-        self.show_parent()
+        self.hide()
 
     def show_parent(self):
         self.parent.show()
 
     def replied(self):
-        time.sleep(20)
+        self.replied_time.stop()
+        self.show_parent()
 
 class WindowClass(QMainWindow, form_class):
     def __init__(self):
