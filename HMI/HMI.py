@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
-from playsound import playsound
 import pandas as pd
 import time
 import os
@@ -18,8 +17,7 @@ class check_response(QDialog):
         self.clicked_time.setInterval(10000)
         self.replied_time = QTimer()
         self.replied_time.setInterval(20000)
-        self.audio_in = 'in.mp3'
-
+        self.wav_in = 'in.wav'
         check_response_ui = 'check.ui'
         uic.loadUi(check_response_ui, self)
         self.setWindowTitle('알림')
@@ -84,6 +82,7 @@ class check_response(QDialog):
 
     def replied(self):
         self.replied_time.stop()
+        os.system(self.wav_in)
         self.show_parent()
 
 class WindowClass(QMainWindow, form_class):
@@ -92,7 +91,7 @@ class WindowClass(QMainWindow, form_class):
         self.setupUi(self)
         self.name = 'test' #driver_name으로 교체
         self.re = 0
-        self.audio_out = 'out.mp3'
+        self.wav_out = 'out.wav'
         self.filename = self.name + '.csv'
         if os.path.exists(self.filename):
             print(f'{self.name} 기록 시작합니다')
@@ -139,18 +138,21 @@ class WindowClass(QMainWindow, form_class):
     def btn1(self):
         self.re = 1
         self.hide()
+        os.system(self.wav_out)
         #playsound(self.audio_out)
         check_response(self)
 
     def btn2(self):
         self.re = 2
         self.hide()
+        os.system(self.wav_out)
         #playsound(self.audio_out)
         check_response(self)
 
     def btn3(self):
         self.re = 3
         self.hide()
+        os.system(self.wav_out)
         #playsound(self.audio_out)
         check_response(self)
 
