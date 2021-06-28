@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
+from playsound import playsound
 import pandas as pd
 import time
 import os
@@ -17,7 +18,7 @@ class check_response(QDialog):
         self.clicked_time.setInterval(10000)
         self.replied_time = QTimer()
         self.replied_time.setInterval(20000)
-        self.wav_in = 'in.wav'
+        self.wav_in = 'in.mp3'
         check_response_ui = 'check.ui'
         uic.loadUi(check_response_ui, self)
         self.setWindowTitle('알림')
@@ -75,9 +76,11 @@ class check_response(QDialog):
     def btn(self):
         self.clicked_time.stop()
         self.replied_time.stop()
-        #playsound(self.audio_in)
         self.close()
+        playsound(self.wav_in)
         self.parent.show()
+        self.parent.remind_time.start()
+        self.parent.record_time.start()
 
     def record_csv(self):
         self.clicked_time.stop()
@@ -88,21 +91,32 @@ class check_response(QDialog):
         self.hide()
 
     def show_parent(self):
+        self.parent.remind_time.start()
+        self.parent.record_time.start()
         self.parent.show()
 
     def replied(self):
         self.replied_time.stop()
-        os.system(self.wav_in)
+        playsound(self.wav_in)
         self.show_parent()
 
 class WindowClass(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.name = 'test' #driver_name으로 교체
+        self.name = '류정환' #driver_name으로 교체
         self.re = 0
-        self.wav_out = 'out.wav'
+        self.wav_out = 'out.mp3'###
+        self.wav_in = 'in.mp3'###
         self.filename = self.name + '.csv'
+
+        self.remind_time = QTimer()
+        self.remind_time.setInterval(5000)
+        self.record_time = QTimer()
+        self.record_time.setInterval(10000)
+        self.reshow_time = QTimer()
+        self.reshow_time.setInterval(10000)
+
         if os.path.exists(self.filename):
             print(f'{self.name} 기록 시작합니다')
         else:
@@ -111,6 +125,12 @@ class WindowClass(QMainWindow, form_class):
             print(f'{self.filename} 파일을 생성하였습니다')
         self.df = pd.read_csv(f'{self.name}.csv', encoding='utf-8-sig')
         self.setWindowTitle('기록중')
+
+        pal = QPalette()
+        pal.setColor(QPalette.Background,QColor(255,255,255))
+        self.lbl_driver.setFont(QFont("Gulim",40))
+        self.setPalette(pal)
+
         self.setWindowModality(2)
         self.show()
         self.lbl_driver.setText(self.name)
@@ -151,35 +171,70 @@ class WindowClass(QMainWindow, form_class):
                                  "background-color: #ebf0c0;"
                                  "border-color: #c4d900;"
                                  "border-radius: 3px")
+        playsound(self.wav_in)
+
+        self.remind_time.timeout.connect(self.remind)
+        self.record_time.timeout.connect(self.record)
+        self.reshow_time.timeout.connect(self.reshow)
+        self.remind_time.start()
+        self.record_time.start()
+        print(self.re)
 
     def btn1(self):
+        self.remind_time.stop()
+        self.record_time.stop()
         self.re = 1
         self.hide()
-        os.system(self.wav_out)
-        #playsound(self.audio_out)
+        #os.system(self.wav_out)
+        playsound(self.wav_out)
         check_response(self)
 
     def btn2(self):
+        self.remind_time.stop()
+        self.record_time.stop()
         self.re = 2
         self.hide()
-        os.system(self.wav_out)
-        #playsound(self.audio_out)
+        #os.system(self.wav_out)
+        playsound(self.wav_out)
         check_response(self)
 
     def btn3(self):
+        self.remind_time.stop()
+        self.record_time.stop()
         self.re = 3
         self.hide()
-        os.system(self.wav_out)
-        #playsound(self.audio_out)
+        #os.system(self.wav_out)
+        playsound(self.wav_out)
         check_response(self)
 
     def btn4(self):
+        self.remind_time.stop()
+        self.record_time.stop()
         self.re = 4
         self.hide()
-        os.system(self.wav_out)
-        #playsound(self.audio_out)
+        #os.system(self.wav_out)
+        playsound(self.wav_out)
         check_response(self)
 
+    def remind(self):
+        self.remind_time.stop()
+        playsound(self.wav_in)
+
+    def record(self):
+        self.record_time.stop()
+        self.reshow_time.start()
+        raw_data = [(time.time(), self.name, 0)]
+        data = pd.DataFrame(raw_data, columns=self.df.columns)
+        self.df = self.df.append(data)
+        self.df.to_csv(f'{self.name}.csv', index=False, encoding='utf-8-sig')
+        self.hide()
+
+    def reshow(self):
+        self.reshow_time.stop()
+        self.remind_time.start()
+        self.record_time.start()
+        playsound(self.wav_in)
+        self.show()
     # def keyPressEvent(self, e):
     #     if Qt.key_Enter == true:
     #         QCoreApplication.instance().quit->종료 시그널
